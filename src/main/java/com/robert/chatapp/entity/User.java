@@ -1,10 +1,12 @@
 package com.robert.chatapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "user")
+@Table(name = "`user`")
 public class User {
 
     @Id
@@ -49,8 +51,7 @@ public class User {
 
     @OneToMany(
             mappedBy = "user",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH},
+            cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<UserGroup> groups = new ArrayList<>();
