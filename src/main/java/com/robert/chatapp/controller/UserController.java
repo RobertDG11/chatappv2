@@ -6,10 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import sun.rmi.runtime.Log;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 @Controller
 @RequestMapping("/user")
@@ -18,12 +16,10 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    Logger log;
-
     @RequestMapping("/list")
     public String listCustomers(Model model) {
 
-        List<User> users = userRepository.getAllUsers();
+        List<User> users = userRepository.findAll();
         users.remove(0);
 
         model.addAttribute("users", users);
@@ -31,11 +27,25 @@ public class UserController {
         return "list-users";
     }
 
-    @RequestMapping(value = "/findByGroup", method = RequestMethod.GET)
+    @RequestMapping(value = "/findByGroupId", method = RequestMethod.GET)
     @ResponseBody
-    public List<User> users(@RequestParam("id") Long id) {
-        return userRepository.getUsersByGroupId(id);
+    public List<User> findByGroupId(@RequestParam("gid") Long gid) {
+        return userRepository.getUsersByGroupId(gid);
+    }
 
+    @RequestMapping(value = "/findByMessageIdAndGroupId", method = RequestMethod.GET)
+    @ResponseBody
+    public User findByMessageIdAndGroupId(@RequestParam("mid") Long mid,
+                                          @RequestParam("gid") Long gid) {
+
+        return userRepository.getUserByMessageIdAndGroupId(mid, gid);
+    }
+
+    @RequestMapping(value = "/findAll", method = RequestMethod.GET)
+    @ResponseBody
+    public List<User> findAll() {
+
+        return userRepository.findAll();
     }
 
 }

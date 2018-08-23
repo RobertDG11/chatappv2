@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "`user`")
+@Table(name = "user")
 public class User {
 
     @Id
@@ -47,8 +47,9 @@ public class User {
 
     @Column(name = "is_active",
     insertable = false)
-    private boolean isActive;
+    private Boolean active;
 
+    @JsonIgnore
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
@@ -56,6 +57,7 @@ public class User {
     )
     private List<UserGroup> groups = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
@@ -178,12 +180,12 @@ public class User {
         this.confirmationToken = confirmationToken;
     }
 
-    public boolean isActive() {
-        return isActive;
+    public Boolean isActive() {
+        return active;
     }
 
-    public void setActive(boolean active) {
-        isActive = active;
+    public void setActive(Boolean active) {
+        active = active;
     }
 
     public List<UserGroup> getGroups() {
@@ -215,19 +217,5 @@ public class User {
     public int hashCode() {
 
         return Objects.hash(firstName, lastName);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", username='" + username + '\'' +
-                ", emailAddress='" + emailAddress + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", notificationType='" + notificationType + '\'' +
-                ", dateCreated='" + dateCreated + '\'' +
-                '}';
     }
 }

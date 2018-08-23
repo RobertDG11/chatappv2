@@ -1,5 +1,6 @@
 package com.robert.chatapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.robert.chatapp.embeddable.UserGroupId;
 
 import javax.persistence.*;

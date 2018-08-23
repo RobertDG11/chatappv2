@@ -1,11 +1,14 @@
 package com.robert.chatapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "user_type")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class UserType {
 
     @Id
@@ -69,5 +72,14 @@ public class UserType {
     public int hashCode() {
 
         return Objects.hash(typeName);
+    }
+
+    @Override
+    public String toString() {
+        return "UserType{" +
+                "id=" + id +
+                ", typeName='" + typeName + '\'' +
+                ", privileges=" + privileges +
+                '}';
     }
 }

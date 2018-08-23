@@ -1,9 +1,12 @@
 package com.robert.chatapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "notification")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Notification {
 
     @Id

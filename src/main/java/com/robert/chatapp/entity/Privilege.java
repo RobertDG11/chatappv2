@@ -10,7 +10,6 @@ import java.util.Objects;
 public class Privilege {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
 
@@ -78,5 +77,14 @@ public class Privilege {
     public int hashCode() {
 
         return Objects.hash(name);
+    }
+
+    @Override
+    public String toString() {
+        return "Privilege{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", userTypes=" + userTypes +
+                '}';
     }
 }

@@ -1,16 +1,20 @@
 package com.robert.chatapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "message")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
-    private int id;
+    private Long id;
 
     @Column(name = "message_body")
     private String messageBody;
@@ -18,11 +22,13 @@ public class Message {
     @Column(name = "create_date")
     private Date createDate;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY,
         cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     @JoinColumn(name = "group_id")
@@ -42,11 +48,11 @@ public class Message {
     public Message() {
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
