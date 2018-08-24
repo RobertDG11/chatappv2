@@ -17,7 +17,7 @@ public class Privilege {
     private String name;
 
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE,
-            CascadeType.PERSIST, CascadeType.REFRESH})
+            CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinTable(
             name = "user_type_to_privilege",
             joinColumns = @JoinColumn(name = "privilege_id"),

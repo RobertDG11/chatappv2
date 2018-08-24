@@ -1,6 +1,5 @@
 package com.robert.chatapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.robert.chatapp.embeddable.UserGroupId;
 
 import javax.persistence.*;
@@ -13,21 +12,20 @@ public class UserGroup {
     @EmbeddedId
     private UserGroupId id;
 
+
     @ManyToOne(fetch = FetchType.LAZY,
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH})
+            cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY,
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH})
+            cascade = CascadeType.ALL)
     @JoinColumn(name = "group_id", insertable = false, updatable = false)
     private Group group;
 
     @ManyToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH})
+                    CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_type_id")
     private UserType userType;
 

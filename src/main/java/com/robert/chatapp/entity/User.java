@@ -1,7 +1,5 @@
 package com.robert.chatapp.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.util.*;
 
@@ -49,18 +47,18 @@ public class User {
     insertable = false)
     private Boolean active;
 
-    @JsonIgnore
     @OneToMany(
             mappedBy = "user",
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST},
             orphanRemoval = true
     )
     private List<UserGroup> groups = new ArrayList<>();
 
-    @JsonIgnore
     @OneToMany(
             mappedBy = "user",
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST},
             orphanRemoval = true
     )
     private List<Message> messages;

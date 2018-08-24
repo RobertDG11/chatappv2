@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User getUserById(int id);
+    User getUserById(Long id);
 
     User getUserByDateCreated(Date dateCreated);
 

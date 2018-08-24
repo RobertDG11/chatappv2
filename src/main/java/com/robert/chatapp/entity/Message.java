@@ -35,8 +35,7 @@ public class Message {
     private Group group;
 
     @ManyToOne(fetch = FetchType.LAZY,
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH})
+            cascade = CascadeType.ALL)
     @JoinColumn(name = "notification_id")
     private Notification notification;
 

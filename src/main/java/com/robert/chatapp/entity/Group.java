@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "group")
+@Table(name = "`group`")
 @NaturalIdCache
 @Cache(
         usage = CacheConcurrencyStrategy.READ_WRITE
@@ -35,15 +35,15 @@ public class Group {
     private boolean isPrivate;
 
     @OneToOne(fetch = FetchType.LAZY,
-        cascade = {CascadeType.DETACH, CascadeType.MERGE,
-        CascadeType.PERSIST, CascadeType.REFRESH})
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "created_by")
     private User createdBy;
 
     @OneToMany(
             mappedBy = "group",
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.PERSIST, CascadeType.REFRESH},
+                    CascadeType.REFRESH, CascadeType.PERSIST},
             orphanRemoval = true
     )
     private List<UserGroup> users = new ArrayList<>();
@@ -102,17 +102,6 @@ public class Group {
 
     public void setUsers(List<UserGroup> users) {
         this.users = users;
-    }
-
-    @Override
-    public String toString() {
-        return "Group{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", dateCreated=" + dateCreated +
-                ", isPrivate=" + isPrivate +
-                ", createdBy=" + createdBy +
-                '}';
     }
 
     @Override

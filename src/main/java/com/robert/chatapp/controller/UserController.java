@@ -1,51 +1,82 @@
 package com.robert.chatapp.controller;
 
+import com.robert.chatapp.dto.ListUserDto;
+import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
 import com.robert.chatapp.repository.UserRepository;
+
+import com.robert.chatapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequestMapping("/user")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    @RequestMapping("/list")
-    public String listCustomers(Model model) {
-
-        List<User> users = userRepository.findAll();
-        users.remove(0);
-
-        model.addAttribute("users", users);
-
-        return "list-users";
-    }
+    @Autowired
+    private UserDtoConversions userDtoConversions;
 
     @RequestMapping(value = "/findByGroupId", method = RequestMethod.GET)
     @ResponseBody
-    public List<User> findByGroupId(@RequestParam("gid") Long gid) {
-        return userRepository.getUsersByGroupId(gid);
+    public List<ListUserDto> findByGroupId(@RequestParam("gid") Long gid) {
+
+        return userService.getAllUsersInGroup(gid).stream().
+                map(user -> userDtoConversions.convertToDto(user)).
+                collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/findByMessageIdAndGroupId", method = RequestMethod.GET)
     @ResponseBody
-    public User findByMessageIdAndGroupId(@RequestParam("mid") Long mid,
+    public ListUserDto findByMessageIdAndGroupId(@RequestParam("mid") Long mid,
                                           @RequestParam("gid") Long gid) {
 
-        return userRepository.getUserByMessageIdAndGroupId(mid, gid);
+        return userDtoConversions.convertToDto(userService.getUserByMessageInGroup(mid, gid));
     }
 
     @RequestMapping(value = "/findAll", method = RequestMethod.GET)
     @ResponseBody
-    public List<User> findAll() {
+    public List<ListUserDto> findAll() {
 
-        return userRepository.findAll();
+        List<ListUserDto> allUsers = userService.getAllUsers().stream().
+                map(user -> userDtoConversions.convertToDto(user)).
+                collect(Collectors.toList());
+
+        allUsers.remove(0);
+
+        return allUsers;
+    }
+
+    @PostMapping("/signUp")
+    public ResponseEntity<Object> createUser(@RequestBody User user) {
+
+        User savedUser = userService.createUser(user);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(savedUser.getId()).toUri();
+
+        return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping("/deleteById")
+    public void deleteUserById(@RequestParam("id") Long id) {
+
+        userService.deleteUser(id);
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteUser(@RequestBody User user) {
+
+        userService.deleteUser(user);
     }
 
 }
