@@ -22,20 +22,19 @@ public class Message {
     @Column(name = "create_date")
     private Date createDate;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY,
         cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     @JoinColumn(name = "group_id")
     private Group group;
 
     @ManyToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "notification_id")
     private Notification notification;
 

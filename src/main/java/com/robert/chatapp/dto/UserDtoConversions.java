@@ -22,13 +22,25 @@ public class UserDtoConversions {
         return modelMapper.map(user, ListUserDto.class);
     }
 
-    public User convertToEntity(ListUserDto listUserDto) throws ParseException {
+    public RegisterUserDto convertToDtoRegister(User user) {
 
-        User user = modelMapper.map(listUserDto, User.class);;
+        return modelMapper.map(user, RegisterUserDto.class);
+    }
+
+    public User convertToEntity(ListUserDto listUserDto) {
+
+        User user = modelMapper.map(listUserDto, User.class);
 
         if (listUserDto.getId() != null) {
             User oldUser = userService.getUser(listUserDto.getId());
         }
+
+        return user;
+    }
+
+    public User convertToEntityRegister(RegisterUserDto registerUserDto) {
+
+        User user = modelMapper.map(registerUserDto, User.class);
 
         return user;
     }

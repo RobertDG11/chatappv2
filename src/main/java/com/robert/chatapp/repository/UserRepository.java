@@ -8,17 +8,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User getUserById(Long id);
+    Optional<User> getUserByDateCreated(Date dateCreated);
 
-    User getUserByDateCreated(Date dateCreated);
+    Optional<User> getUserByPhoneNumber(String phoneNumber);
 
-    User getUserByPhoneNumber(String phoneNumber);
+    Optional<User> getUserByEmailAddress(String emailAddress);
 
-    User getUserByEmailAddress(String emailAddress);
+    Optional<User> getUsersByUsername(String username);
 
     List<User> getUsersByNotificationType(String notificationType);
 
@@ -33,7 +34,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "on u.id=m.user.id inner join UserGroup g " +
             "on m.group.id=g.group.id " +
             "where m.id=:mid and g.group.id=:gid")
-    User getUserByMessageIdAndGroupId(@Param("mid") Long mid, @Param("gid") Long gid);
+    Optional<User> getUserByMessageIdAndGroupId(@Param("mid") Long mid, @Param("gid") Long gid);
 
 
 

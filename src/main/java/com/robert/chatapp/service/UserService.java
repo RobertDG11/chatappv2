@@ -1,6 +1,11 @@
 package com.robert.chatapp.service;
 
+import com.robert.chatapp.dto.RegisterUserDto;
+import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
+import com.robert.chatapp.exceptions.EmailAlreadyExistsException;
+import com.robert.chatapp.exceptions.UserNotFoundException;
+import com.robert.chatapp.exceptions.UsernameAlreadyExistsException;
 import com.robert.chatapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService {
@@ -16,55 +22,82 @@ public class UserService implements IUserService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    UserDtoConversions userDtoConversions;
+
     @Override
     @Transactional
-    public User createUser(User newUser) {
+    public User createUser(RegisterUserDto newUser) {
 
-        newUser.setDateCreated(new Date());
-        return userRepository.save(newUser);
+        if (userRepository.getUsersByUsername(newUser.getUsername()).isPresent()) {
+
+            throw new UsernameAlreadyExistsException("There is an user with the same username. " +
+                    "Please choose another one!");
+        }
+
+
+        if (userRepository.getUserByEmailAddress(newUser.getEmailAddress()).isPresent()) {
+
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        User user = userDtoConversions.convertToEntityRegister(newUser);
+
+        user.setDateCreated(new Date());
+
+        return userRepository.save(user);
     }
 
     @Override
     public User getUser(Long id) {
 
-        return userRepository.getUserById(id);
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
     public User getUser(Date dateCreated) {
 
-        return userRepository.getUserByDateCreated(dateCreated);
+        return userRepository.getUserByDateCreated(dateCreated).orElse(null);
     }
 
     @Override
     public User getUserByEmail(String emailAddress) {
 
-        return userRepository.getUserByEmailAddress(emailAddress);
+        return userRepository.getUserByEmailAddress(emailAddress).orElse(null);
     }
 
     @Override
     public User getUserByPhone(String phoneNumber) {
 
-        return userRepository.getUserByPhoneNumber(phoneNumber);
+        return userRepository.getUserByPhoneNumber(phoneNumber).orElse(null);
     }
 
     @Override
-    public User editUser(User oldUser) {
-        return null;
-    }
+    public User getUserByUsername(String username) {
 
-    @Override
-    @Transactional
-    public void deleteUser(Long id) {
-
-        userRepository.deleteById(id);
+        return userRepository.getUsersByUsername(username).orElse(null);
     }
 
     @Override
     @Transactional
-    public void deleteUser(User oldUser) {
+    public User editUser(RegisterUserDto newUser) {
 
-        userRepository.delete(oldUser);
+        Optional<User> oldUser = userRepository.findById(newUser.getId());
+
+        oldUser.ifPresent(a -> updateValues(a, userDtoConversions.convertToEntityRegister(newUser)));
+
+        return oldUser.orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    @Override
+    @Transactional
+    public User deleteUser(Long id) {
+
+        Optional<User> userToDelete = userRepository.findById(id);
+
+        userToDelete.ifPresent(user -> userRepository.delete(user));
+
+        return userToDelete.orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
@@ -102,6 +135,27 @@ public class UserService implements IUserService {
     @Override
     public User getUserByMessageInGroup(Long mid, Long gid) {
 
-        return userRepository.getUserByMessageIdAndGroupId(mid, gid);
+        return userRepository.getUserByMessageIdAndGroupId(mid, gid).orElse(null);
+    }
+
+    private void updateValues(User oldUser, User newUser) {
+
+        if (userRepository.getUsersByUsername(newUser.getUsername()).isPresent()) {
+
+            throw new UsernameAlreadyExistsException("There is an user with the same username. " +
+                    "Please choose another one!");
+        }
+
+        if (userRepository.getUserByEmailAddress(newUser.getEmailAddress()).isPresent()) {
+
+            throw new EmailAlreadyExistsException("Email already exists");
+        }
+
+        oldUser.setFirstName(newUser.getFirstName());
+        oldUser.setLastName(newUser.getLastName());
+        oldUser.setUsername(newUser.getUsername());
+        oldUser.setEmailAddress(newUser.getEmailAddress());
+        oldUser.setPhoneNumber(newUser.getPhoneNumber());
+        oldUser.setPassword(newUser.getPassword());
     }
 }

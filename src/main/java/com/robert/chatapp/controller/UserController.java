@@ -1,18 +1,21 @@
 package com.robert.chatapp.controller;
 
 import com.robert.chatapp.dto.ListUserDto;
+import com.robert.chatapp.dto.RegisterUserDto;
 import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
-import com.robert.chatapp.repository.UserRepository;
 
 import com.robert.chatapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.jws.soap.SOAPBinding;
+import javax.validation.Valid;
 import java.net.URI;
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,8 +29,7 @@ public class UserController {
     @Autowired
     private UserDtoConversions userDtoConversions;
 
-    @RequestMapping(value = "/findByGroupId", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/findByGroupId")
     public List<ListUserDto> findByGroupId(@RequestParam("gid") Long gid) {
 
         return userService.getAllUsersInGroup(gid).stream().
@@ -35,16 +37,20 @@ public class UserController {
                 collect(Collectors.toList());
     }
 
-    @RequestMapping(value = "/findByMessageIdAndGroupId", method = RequestMethod.GET)
-    @ResponseBody
-    public ListUserDto findByMessageIdAndGroupId(@RequestParam("mid") Long mid,
+    @GetMapping("/findByMessageIdAndGroupId")
+    public ResponseEntity findByMessageIdAndGroupId(@RequestParam("mid") Long mid,
                                           @RequestParam("gid") Long gid) {
 
-        return userDtoConversions.convertToDto(userService.getUserByMessageInGroup(mid, gid));
+        User user = userService.getUserByMessageInGroup(mid, gid);
+
+        if (user == null) {
+            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(userDtoConversions.convertToDto(user));
     }
 
-    @RequestMapping(value = "/findAll", method = RequestMethod.GET)
-    @ResponseBody
+    @GetMapping("/findAll")
     public List<ListUserDto> findAll() {
 
         List<ListUserDto> allUsers = userService.getAllUsers().stream().
@@ -57,7 +63,7 @@ public class UserController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity<Object> createUser(@RequestBody User user) {
+    public ResponseEntity<Object> createUser(@Valid @RequestBody RegisterUserDto user) {
 
         User savedUser = userService.createUser(user);
 
@@ -68,15 +74,19 @@ public class UserController {
     }
 
     @DeleteMapping("/deleteById")
-    public void deleteUserById(@RequestParam("id") Long id) {
+    public ResponseEntity deleteUserById(@RequestParam("id") Long id) {
 
-        userService.deleteUser(id);
+        User user = userService.deleteUser(id);
+
+        return new ResponseEntity<>(userDtoConversions.convertToDto(user), HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public void deleteUser(@RequestBody User user) {
+    @PutMapping("/updateUser")
+    public ResponseEntity updateUser(@Valid @RequestBody RegisterUserDto user) {
 
-        userService.deleteUser(user);
+        User newUser = userService.editUser(user);
+
+        return new ResponseEntity<>(userDtoConversions.convertToDto(newUser), HttpStatus.OK);
     }
 
 }

@@ -48,6 +48,14 @@ public class Group {
     )
     private List<UserGroup> users = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "group",
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST},
+            orphanRemoval = true
+    )
+    private List<Message> messages = new ArrayList<>();
+
     public Group(String name) {
         this.name = name;
         this.dateCreated = new Date();
