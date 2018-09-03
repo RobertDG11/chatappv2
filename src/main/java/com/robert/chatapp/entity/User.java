@@ -40,10 +40,6 @@ public class User {
     @Column(name = "date_created")
     private Date dateCreated;
 
-    @Column(name = "confirmation_token",
-            unique = true)
-    private String confirmationToken;
-
     @Column(name = "is_active",
     insertable = false)
     private Boolean active;
@@ -63,6 +59,12 @@ public class User {
             orphanRemoval = true
     )
     private List<Message> messages;
+
+    @OneToOne(fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
+            mappedBy = "userId",
+            orphanRemoval = true)
+    private VerificationToken verificationToken;
 
     public User(String firstName, String lastName, String username, String emailAddress, String phoneNumber, String password) {
         this.firstName = firstName;
@@ -171,20 +173,13 @@ public class User {
         this.dateCreated = dateCreated;
     }
 
-    public String getConfirmationToken() {
-        return confirmationToken;
-    }
-
-    public void setConfirmationToken(String confirmationToken) {
-        this.confirmationToken = confirmationToken;
-    }
 
     public Boolean isActive() {
         return active;
     }
 
     public void setActive(Boolean active) {
-        active = active;
+        this.active = active;
     }
 
     public List<UserGroup> getGroups() {
@@ -201,6 +196,16 @@ public class User {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+
+
+
+    public VerificationToken getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(VerificationToken verificationToken) {
+        this.verificationToken = verificationToken;
     }
 
     @Override

@@ -27,8 +27,6 @@ public class ListUserDto {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date dateCreated;
 
-    private String confirmationToken;
-
     private Boolean active;
 
     public Long getId() {
@@ -101,14 +99,6 @@ public class ListUserDto {
 
     public void setDateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
-    }
-
-    public String getConfirmationToken() {
-        return confirmationToken;
-    }
-
-    public void setConfirmationToken(String confirmationToken) {
-        this.confirmationToken = confirmationToken;
     }
 
     public Boolean getActive() {

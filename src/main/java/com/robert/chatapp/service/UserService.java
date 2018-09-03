@@ -3,15 +3,18 @@ package com.robert.chatapp.service;
 import com.robert.chatapp.dto.RegisterUserDto;
 import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
+import com.robert.chatapp.entity.VerificationToken;
 import com.robert.chatapp.exceptions.EmailAlreadyExistsException;
 import com.robert.chatapp.exceptions.UserNotFoundException;
 import com.robert.chatapp.exceptions.UsernameAlreadyExistsException;
+import com.robert.chatapp.repository.TokenRepository;
 import com.robert.chatapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +22,15 @@ import java.util.Optional;
 @Service
 public class UserService implements IUserService {
 
+    private static final String TOKEN_INVALID = "invalidToken";
+    private static final String TOKEN_EXPIRED = "expired";
+    private static final String TOKEN_VALID = "valid";
+
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    TokenRepository tokenRepository;
 
     @Autowired
     UserDtoConversions userDtoConversions;
@@ -51,31 +61,44 @@ public class UserService implements IUserService {
     @Override
     public User getUser(Long id) {
 
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).
+                orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
     public User getUser(Date dateCreated) {
 
-        return userRepository.getUserByDateCreated(dateCreated).orElse(null);
+        return userRepository.getUserByDateCreated(dateCreated).
+                orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
     public User getUserByEmail(String emailAddress) {
 
-        return userRepository.getUserByEmailAddress(emailAddress).orElse(null);
+        return userRepository.getUserByEmailAddress(emailAddress).
+                orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
     public User getUserByPhone(String phoneNumber) {
 
-        return userRepository.getUserByPhoneNumber(phoneNumber).orElse(null);
+        return userRepository.getUserByPhoneNumber(phoneNumber).
+                orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     @Override
     public User getUserByUsername(String username) {
 
-        return userRepository.getUsersByUsername(username).orElse(null);
+        return userRepository.getUsersByUsername(username).
+                orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    @Override
+    public User getUserByToken(String token) {
+
+        Optional<VerificationToken> verificationToken = tokenRepository.findByConfirmationToken(token);
+
+        return (verificationToken.orElseThrow(() -> new UserNotFoundException("User not found"))).getUserId();
     }
 
     @Override
@@ -135,7 +158,46 @@ public class UserService implements IUserService {
     @Override
     public User getUserByMessageInGroup(Long mid, Long gid) {
 
-        return userRepository.getUserByMessageIdAndGroupId(mid, gid).orElse(null);
+        return userRepository.getUserByMessageIdAndGroupId(mid, gid).
+                orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+    @Override
+    @Transactional
+    public void createVerificationTokenForUser(final User user, final String token) {
+
+        final VerificationToken myToken = new VerificationToken(token, user);
+        tokenRepository.save(myToken);
+    }
+
+    @Override
+    @Transactional
+    public String validateVerificationToken(String token) {
+
+        Optional<VerificationToken> verificationToken = tokenRepository.findByConfirmationToken(token);
+
+        if (!verificationToken.isPresent()) {
+            return TOKEN_INVALID;
+        }
+
+        User user = verificationToken.get().getUserId();
+
+        final Calendar cal = Calendar.getInstance();
+
+        if ((verificationToken.get().getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
+            tokenRepository.delete(verificationToken.get());
+            return TOKEN_EXPIRED;
+        }
+
+        tokenRepository.delete(verificationToken.get());
+
+        user.setActive(true);
+        user.setVerificationToken(null);
+
+        userRepository.save(user);
+
+
+        return TOKEN_VALID;
     }
 
     private void updateValues(User oldUser, User newUser) {

@@ -14,6 +14,7 @@ public interface IUserService {
     User getUserByEmail(String emailAddress);
     User getUserByPhone(String phoneNumber);
     User getUserByUsername(String username);
+    User getUserByToken(String token);
     User editUser(RegisterUserDto oldUser);
     User deleteUser(Long id);
     List<User> getAllUsers();
@@ -22,6 +23,8 @@ public interface IUserService {
     List<User> getAllUsers(Boolean active);
     List<User> getAllUsersInGroup(Long gid);
     User getUserByMessageInGroup(Long mid, Long gid);
+    void createVerificationTokenForUser(final User user, final String token);
+    String validateVerificationToken(String token);
 
 
 }

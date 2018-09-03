@@ -5,17 +5,18 @@ import com.robert.chatapp.dto.RegisterUserDto;
 import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
 
+import com.robert.chatapp.registration.OnRegistrationCompleteEvent;
 import com.robert.chatapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.jws.soap.SOAPBinding;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
-import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,9 @@ public class UserController {
 
     @Autowired
     private UserDtoConversions userDtoConversions;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/findByGroupId")
     public List<ListUserDto> findByGroupId(@RequestParam("gid") Long gid) {
@@ -63,12 +67,15 @@ public class UserController {
     }
 
     @PostMapping("/signUp")
-    public ResponseEntity<Object> createUser(@Valid @RequestBody RegisterUserDto user) {
+    public ResponseEntity<Object> createUser(@Valid @RequestBody RegisterUserDto user,
+                                             final HttpServletRequest request) {
 
         User savedUser = userService.createUser(user);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(savedUser.getId()).toUri();
+
+        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(savedUser, request.getLocale(), getAppUrl(request)));
 
         return ResponseEntity.created(location).build();
     }
@@ -87,6 +94,29 @@ public class UserController {
         User newUser = userService.editUser(user);
 
         return new ResponseEntity<>(userDtoConversions.convertToDto(newUser), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/registrationConfirm")
+    public ResponseEntity<String> confirmRegistration(@RequestParam("token") final String token) {
+
+        String result = userService.validateVerificationToken(token);
+
+        if (result.equals("valid")) {
+
+            return new ResponseEntity<>("Registration confirmed successfully!", HttpStatus.OK);
+        }
+
+        if (result.equals("expired")) {
+
+            return new ResponseEntity<>("Token expired. Please generate a new one!", HttpStatus.ACCEPTED);
+        }
+
+        return new ResponseEntity<>("Token is invalid!", HttpStatus.BAD_REQUEST);
+    }
+
+
+    private String getAppUrl(HttpServletRequest request) {
+        return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
 
 }
