@@ -22,7 +22,7 @@ public class VerificationToken {
     @Column(name = "expiry_date")
     private Date expiryDate;
 
-    @OneToOne(fetch = FetchType.EAGER,
+    @OneToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
                     CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinColumn(nullable = false, name = "user_id")
@@ -55,6 +55,12 @@ public class VerificationToken {
         return new Date(cal.getTime().getTime());
     }
 
+    public void updateToken(final String token) {
+
+        setConfirmationToken(token);
+        setExpiryDate(calculateExpiryDate());
+    }
+
     public String getConfirmationToken() {
         return confirmationToken;
     }
@@ -85,5 +91,61 @@ public class VerificationToken {
 
     public void setUserId(User userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public int hashCode() {
+
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((expiryDate == null) ? 0 : expiryDate.hashCode());
+        result = prime * result + ((confirmationToken == null) ? 0 : confirmationToken.hashCode());
+        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+
+        if (this == obj) {
+
+            return true;
+        }
+
+        if (obj == null) {
+
+            return false;
+        }
+
+        if (getClass() != obj.getClass()) {
+
+            return false;
+        }
+
+        final VerificationToken other = (VerificationToken) obj;
+
+        if (expiryDate == null) {
+
+            if (other.expiryDate != null) {
+                return false;
+            }
+        }
+        else if (!expiryDate.equals(other.expiryDate)) {
+
+            return false;
+        }
+
+        if (confirmationToken == null) {
+
+            if (other.confirmationToken != null) {
+                return false;
+            }
+        }
+        else if (!confirmationToken.equals(other.confirmationToken)) {
+            return false;
+        }
+        if (userId == null) {
+            return other.userId == null;
+        } else return userId.equals(other.userId);
     }
 }

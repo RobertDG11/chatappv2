@@ -5,6 +5,7 @@ import com.robert.chatapp.dto.RegisterUserDto;
 import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
 
+import com.robert.chatapp.entity.VerificationToken;
 import com.robert.chatapp.registration.OnRegistrationCompleteEvent;
 import com.robert.chatapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,7 @@ public class UserController {
 
     @PostMapping("/signUp")
     public ResponseEntity<Object> createUser(@Valid @RequestBody RegisterUserDto user,
-                                             final HttpServletRequest request) {
+                                             HttpServletRequest request) {
 
         User savedUser = userService.createUser(user);
 
@@ -96,7 +97,7 @@ public class UserController {
         return new ResponseEntity<>(userDtoConversions.convertToDto(newUser), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/registrationConfirm")
+    @GetMapping("/registrationConfirm")
     public ResponseEntity<String> confirmRegistration(@RequestParam("token") final String token) {
 
         String result = userService.validateVerificationToken(token);
@@ -112,6 +113,18 @@ public class UserController {
         }
 
         return new ResponseEntity<>("Token is invalid!", HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/resendConfirmation")
+    public ResponseEntity<String> resendConfirmToken(@RequestParam("token") String oldToken,
+                                                     HttpServletRequest request) {
+
+        VerificationToken newToken = userService.generateNewVerificationToken(oldToken);
+        User user = userService.getUserByToken(newToken.getConfirmationToken());
+
+        eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, request.getLocale(), getAppUrl(request)));
+
+        return new ResponseEntity<>("A new confirmation link was sent to your email", HttpStatus.OK);
     }
 
 

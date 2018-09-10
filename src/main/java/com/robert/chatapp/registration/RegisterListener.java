@@ -1,18 +1,17 @@
 package com.robert.chatapp.registration;
 
 import com.robert.chatapp.entity.User;
+import com.robert.chatapp.exceptions.InvalidTokenException;
 import com.robert.chatapp.service.UserService;
 import com.robert.chatapp.utils.SecureTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
+
 
 @Component
 public class RegisterListener implements ApplicationListener<OnRegistrationCompleteEvent> {
@@ -35,9 +34,20 @@ public class RegisterListener implements ApplicationListener<OnRegistrationCompl
     private void confirmRegistration(final OnRegistrationCompleteEvent event) {
 
         final User user = event.getUser();
-        final String token = SecureTokenGenerator.nextToken();
+        final String token;
 
-        service.createVerificationTokenForUser(user, token);
+        if (user.isActive()) {
+
+            throw new InvalidTokenException("User already confirmed");
+        }
+
+        if (user.getVerificationToken() == null) {
+            token = SecureTokenGenerator.nextToken();
+            service.createVerificationTokenForUser(user, token);
+        }
+        else {
+            token = user.getVerificationToken().getConfirmationToken();
+        }
 
         final SimpleMailMessage email = constructEmailMessage(event, user, token);
         mailSender.send(email);

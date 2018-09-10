@@ -2,6 +2,7 @@ package com.robert.chatapp.service;
 
 import com.robert.chatapp.dto.RegisterUserDto;
 import com.robert.chatapp.entity.User;
+import com.robert.chatapp.entity.VerificationToken;
 
 import java.util.Date;
 import java.util.List;
@@ -25,6 +26,7 @@ public interface IUserService {
     User getUserByMessageInGroup(Long mid, Long gid);
     void createVerificationTokenForUser(final User user, final String token);
     String validateVerificationToken(String token);
+    VerificationToken generateNewVerificationToken(final String existingVerificationToken);
 
 
 }

@@ -1,5 +1,7 @@
 package com.robert.chatapp.entity;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import javax.persistence.*;
 import java.util.*;
 
@@ -26,8 +28,7 @@ public class User {
             unique = true)
     private String emailAddress;
 
-    @Column(name = "phone_number",
-            unique = true)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name = "password")
@@ -35,14 +36,14 @@ public class User {
 
     @Column(name = "notification_type",
     insertable = false)
-    private String notificationType;
+    private String notificationType = "email";
 
     @Column(name = "date_created")
     private Date dateCreated;
 
     @Column(name = "is_active",
     insertable = false)
-    private Boolean active;
+    private Boolean active = false;
 
     @OneToMany(
             mappedBy = "user",
@@ -60,7 +61,7 @@ public class User {
     )
     private List<Message> messages;
 
-    @OneToOne(fetch = FetchType.EAGER,
+    @OneToOne(fetch = FetchType.LAZY,
             cascade = CascadeType.ALL,
             mappedBy = "userId",
             orphanRemoval = true)
@@ -221,5 +222,21 @@ public class User {
     public int hashCode() {
 
         return Objects.hash(firstName, lastName);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", username='" + username + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", password='" + password + '\'' +
+                ", notificationType='" + notificationType + '\'' +
+                ", dateCreated=" + dateCreated +
+                ", active=" + active +
+                '}';
     }
 }

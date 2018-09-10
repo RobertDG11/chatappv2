@@ -5,10 +5,12 @@ import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
 import com.robert.chatapp.entity.VerificationToken;
 import com.robert.chatapp.exceptions.EmailAlreadyExistsException;
+import com.robert.chatapp.exceptions.InvalidTokenException;
 import com.robert.chatapp.exceptions.UserNotFoundException;
 import com.robert.chatapp.exceptions.UsernameAlreadyExistsException;
 import com.robert.chatapp.repository.TokenRepository;
 import com.robert.chatapp.repository.UserRepository;
+import com.robert.chatapp.utils.SecureTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ public class UserService implements IUserService {
     UserDtoConversions userDtoConversions;
 
     @Override
-    @Transactional
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public User createUser(RegisterUserDto newUser) {
 
         if (userRepository.getUsersByUsername(newUser.getUsername()).isPresent()) {
@@ -185,7 +187,9 @@ public class UserService implements IUserService {
         final Calendar cal = Calendar.getInstance();
 
         if ((verificationToken.get().getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
+
             tokenRepository.delete(verificationToken.get());
+            user.setVerificationToken(null);
             return TOKEN_EXPIRED;
         }
 
@@ -198,6 +202,17 @@ public class UserService implements IUserService {
 
 
         return TOKEN_VALID;
+    }
+
+    @Override
+    public VerificationToken generateNewVerificationToken(String existingVerificationToken) {
+
+        Optional<VerificationToken> token = tokenRepository.findByConfirmationToken(existingVerificationToken);
+
+        token.ifPresent(t -> {t.updateToken(SecureTokenGenerator.nextToken());
+            tokenRepository.save(t);});
+
+        return token.orElseThrow(() -> new InvalidTokenException("Invalid token"));
     }
 
     private void updateValues(User oldUser, User newUser) {
