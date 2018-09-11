@@ -1,7 +1,5 @@
 package com.robert.chatapp.entity;
 
-import org.hibernate.annotations.ColumnDefault;
-
 import javax.persistence.*;
 import java.util.*;
 
@@ -51,7 +49,7 @@ public class User {
                     CascadeType.REFRESH, CascadeType.PERSIST},
             orphanRemoval = true
     )
-    private List<UserGroup> groups = new ArrayList<>();
+    private List<UserGroup> groups;
 
     @OneToMany(
             mappedBy = "user",
@@ -62,26 +60,23 @@ public class User {
     private List<Message> messages;
 
     @OneToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST},
             mappedBy = "userId",
             orphanRemoval = true)
     private VerificationToken verificationToken;
 
-    public User(String firstName, String lastName, String username, String emailAddress, String phoneNumber, String password) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.emailAddress = emailAddress;
-        this.phoneNumber = phoneNumber;
-        this.password = password;
-        dateCreated = new Date();
-    }
 
-    public User() {
-    }
+    public void addGroup(Group group, UserType type) {
 
-    public void addGroup(Group group) {
+        if (groups == null) {
+
+            groups = new ArrayList<>();
+        }
+
         UserGroup userGroup = new UserGroup(this, group);
+        userGroup.setUserType(type);
+
         groups.add(userGroup);
         group.getUsers().add(userGroup);
     }

@@ -1,10 +1,5 @@
 package com.robert.chatapp.entity;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,10 +8,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "`group`")
-@NaturalIdCache
-@Cache(
-        usage = CacheConcurrencyStrategy.READ_WRITE
-)
 public class Group {
 
     @Id
@@ -24,26 +15,26 @@ public class Group {
     @Column(name = "group_id")
     private Long id;
 
-    @NaturalId
+    @Column(name = "name")
     private String name;
 
     @Column(name = "date_created")
     private Date dateCreated;
 
-    @Column(name = "is_private")
-    @GeneratedValue(generator = "0")
-    private boolean isPrivate;
+    @Column(name = "is_private",
+    insertable = false)
+    private Boolean privateG = false;
 
     @OneToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.REFRESH, CascadeType.PERSIST})
+                    CascadeType.REFRESH, CascadeType.PERSIST},
+            orphanRemoval = true)
     @JoinColumn(name = "created_by")
     private User createdBy;
 
     @OneToMany(
             mappedBy = "group",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.REFRESH, CascadeType.PERSIST},
+            cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<UserGroup> users = new ArrayList<>();
@@ -55,14 +46,6 @@ public class Group {
             orphanRemoval = true
     )
     private List<Message> messages = new ArrayList<>();
-
-    public Group(String name) {
-        this.name = name;
-        this.dateCreated = new Date();
-    }
-
-    public Group() {
-    }
 
     public Long getId() {
         return id;
@@ -88,12 +71,12 @@ public class Group {
         this.dateCreated = dateCreated;
     }
 
-    public boolean isPrivate() {
-        return isPrivate;
+    public Boolean isPrivate() {
+        return privateG;
     }
 
-    public void setPrivate(boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setPrivate(Boolean privateG) {
+        this.privateG = privateG;
     }
 
     public User getCreatedBy() {

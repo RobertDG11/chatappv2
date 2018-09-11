@@ -12,14 +12,17 @@ public class UserGroup {
     @EmbeddedId
     private UserGroupId id;
 
-
     @ManyToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST})
+    @MapsId("userId")
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST})
+    @MapsId("groupId")
     @JoinColumn(name = "group_id", insertable = false, updatable = false)
     private Group group;
 
@@ -29,9 +32,9 @@ public class UserGroup {
     @JoinColumn(name = "user_type_id")
     private UserType userType;
 
-    @Column(name = "is_blocked")
-    @GeneratedValue(generator = "0")
-    private boolean isBlocked;
+    @Column(name = "is_blocked",
+    insertable = false)
+    private boolean isBlocked = false;
 
     public UserGroup() {
     }

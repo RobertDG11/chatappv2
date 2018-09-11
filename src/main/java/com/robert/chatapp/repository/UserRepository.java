@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> getUserByEmailAddress(String emailAddress);
 
-    Optional<User> getUsersByUsername(String username);
+    Optional<User> getUserByUsername(String username);
 
     List<User> getUsersByNotificationType(String notificationType);
 

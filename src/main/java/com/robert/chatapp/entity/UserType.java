@@ -8,7 +8,6 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "user_type")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class UserType {
 
     @Id

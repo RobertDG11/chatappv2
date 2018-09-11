@@ -41,7 +41,7 @@ public class UserService implements IUserService {
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public User createUser(RegisterUserDto newUser) {
 
-        if (userRepository.getUsersByUsername(newUser.getUsername()).isPresent()) {
+        if (userRepository.getUserByUsername(newUser.getUsername()).isPresent()) {
 
             throw new UsernameAlreadyExistsException("There is an user with the same username. " +
                     "Please choose another one!");
@@ -91,7 +91,7 @@ public class UserService implements IUserService {
     @Override
     public User getUserByUsername(String username) {
 
-        return userRepository.getUsersByUsername(username).
+        return userRepository.getUserByUsername(username).
                 orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
@@ -217,7 +217,7 @@ public class UserService implements IUserService {
 
     private void updateValues(User oldUser, User newUser) {
 
-        if (userRepository.getUsersByUsername(newUser.getUsername()).isPresent()) {
+        if (userRepository.getUserByUsername(newUser.getUsername()).isPresent()) {
 
             throw new UsernameAlreadyExistsException("There is an user with the same username. " +
                     "Please choose another one!");

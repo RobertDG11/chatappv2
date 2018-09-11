@@ -17,7 +17,7 @@ public class SecureTokenGenerator {
      * Generate the next secure random token in the series.
      */
     public static String nextToken() {
-        for (int idx = 0; idx < buf.length; ++idx)
+        for (int idx = 0; idx < SECURE_TOKEN_LENGTH; ++idx)
             buf[idx] = symbols[random.nextInt(symbols.length)];
         return new String(buf);
     }
