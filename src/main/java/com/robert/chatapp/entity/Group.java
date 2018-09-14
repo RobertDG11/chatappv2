@@ -37,7 +37,7 @@ public class Group {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<UserGroup> users = new ArrayList<>();
+    private List<UserGroup> users;
 
     @OneToMany(
             mappedBy = "group",

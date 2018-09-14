@@ -2,7 +2,9 @@ package com.robert.chatapp.controller;
 
 import com.robert.chatapp.dto.GroupDtoConversion;
 import com.robert.chatapp.entity.Group;
+import com.robert.chatapp.entity.User;
 import com.robert.chatapp.service.IGroupService;
+import com.robert.chatapp.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,9 @@ public class GroupController {
     @Autowired
     GroupDtoConversion groupDtoConversion;
 
+    @Autowired
+    IUserService userService;
+
     @PostMapping("/create")
     ResponseEntity<Object> createGroup(@RequestParam String name, @RequestParam Long createdBy) {
 
@@ -29,6 +34,17 @@ public class GroupController {
                 .buildAndExpand(savedGroup.getId()).toUri();
 
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping("/addUser")
+    ResponseEntity<Object> inertUser(@RequestParam Long gid, @RequestParam Long uid) {
+
+        groupService.insertNewUser(gid, uid);
+
+        User user = userService.getUser(uid);
+        Group group = groupService.getGroupById(gid);
+
+        return ResponseEntity.ok("User " + user.getUsername() + " joined " + group.getName());
     }
 
 }

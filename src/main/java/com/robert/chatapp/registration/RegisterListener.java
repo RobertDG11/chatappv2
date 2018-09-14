@@ -53,14 +53,14 @@ public class RegisterListener implements ApplicationListener<OnRegistrationCompl
         mailSender.send(email);
     }
 
-    private SimpleMailMessage constructEmailMessage(final OnRegistrationCompleteEvent event,
-                                                    final User user, final String token) {
+    private SimpleMailMessage constructEmailMessage(OnRegistrationCompleteEvent event,
+                                                    User user, String token) {
 
-        final String recipientAddress = user.getEmailAddress();
-        final String subject = "Registration Confirmation";
-        final String confirmationUrl = event.getAppUrl() + "/user/registrationConfirm?token=" + token;
-        final String message = "Account successfully created";
-        final SimpleMailMessage email = new SimpleMailMessage();
+        String recipientAddress = user.getEmailAddress();
+        String subject = "Registration Confirmation";
+        String confirmationUrl = event.getAppUrl() + "/user/registrationConfirm?token=" + token;
+        String message = "Account successfully created";
+        SimpleMailMessage email = new SimpleMailMessage();
 
         email.setTo(recipientAddress);
         email.setSubject(subject);

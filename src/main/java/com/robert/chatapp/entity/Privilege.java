@@ -83,8 +83,7 @@ public class Privilege {
     public String toString() {
         return "Privilege{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", userTypes=" + userTypes +
+                ", name='" + name  +
                 '}';
     }
 }

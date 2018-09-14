@@ -63,5 +63,18 @@ public class GroupService implements IGroupService {
     @Override
     public void insertNewUser(Long gid, Long uid) {
 
+        User user = userService.getUser(uid);
+        Group group = getGroupById(gid);
+        UserType userType = userTypeRepository.getOne(3);
+
+        user.addGroup(group, userType);
+
+        groupRepository.save(group);
+
+    }
+
+    @Override
+    public void removeUser(Long gid, Long uid) {
+
     }
 }
