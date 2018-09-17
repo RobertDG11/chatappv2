@@ -1,7 +1,6 @@
 package com.robert.chatapp.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.robert.chatapp.entity.User;
 
 import java.util.Date;
 
@@ -16,7 +15,9 @@ public class GroupDto {
 
     private boolean isPrivate;
 
-    private User createdBy;
+    private ListUserDto createdBy;
+
+    private int numberOfUsers;
 
     public Long getId() {
         return id;
@@ -50,11 +51,21 @@ public class GroupDto {
         isPrivate = aPrivate;
     }
 
-    public User getCreatedBy() {
+    public ListUserDto getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(User createdBy) {
+    public void setCreatedBy(ListUserDto createdBy) {
         this.createdBy = createdBy;
+    }
+
+    public int getNumberOfUsers() {
+        return numberOfUsers;
+    }
+
+    public GroupDto setNumberOfUsers(int numberOfUsers) {
+        this.numberOfUsers = numberOfUsers;
+
+        return this;
     }
 }

@@ -1,5 +1,8 @@
 package com.robert.chatapp.service;
 
+import com.robert.chatapp.dto.GroupDto;
+import com.robert.chatapp.dto.GroupDtoConversion;
+import com.robert.chatapp.dto.ListUserDto;
 import com.robert.chatapp.entity.Group;
 import com.robert.chatapp.entity.User;
 import com.robert.chatapp.entity.UserType;
@@ -12,6 +15,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class GroupService implements IGroupService {
@@ -24,6 +30,9 @@ public class GroupService implements IGroupService {
 
     @Autowired
     UserTypeRepository userTypeRepository;
+
+    @Autowired
+    GroupDtoConversion groupDtoConversion;
 
     @Override
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
@@ -47,6 +56,8 @@ public class GroupService implements IGroupService {
         group = groupRepository.save(group);
 
         createdBy.addGroup(group, userType);
+
+        createdBy.getCreatedGroups().add(group);
 
         group.setCreatedBy(createdBy);
 
@@ -74,7 +85,56 @@ public class GroupService implements IGroupService {
     }
 
     @Override
+    @Transactional
     public void removeUser(Long gid, Long uid) {
 
+        User user = userService.getUser(uid);
+        Group group = getGroupById(gid);
+
+        user.removeGroup(group);
+
     }
+
+    @Override
+    @Transactional
+    public void deleteGroup(Long gid) {
+
+        Group group = getGroupById(gid);
+
+        group.getCreatedBy().getCreatedGroups().remove(group);
+
+        groupRepository.delete(group);
+    }
+
+    @Override
+    public List<GroupDto> getAllGroups() {
+
+        return groupRepository.findAll().stream()
+                .map(group -> groupDtoConversion.convertToDto(group).setNumberOfUsers(group.getUsers().size()))
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public void blockUser(Long gid, Long uid) {
+
+        User user = userService.getUser(uid);
+        Group group = getGroupById(gid);
+
+        user.blockUser(group);
+
+        groupRepository.save(group);
+    }
+
+    @Override
+    public Group createPrivateConversation(Long createdById, Long otherUser) {
+
+        Group group = createGroup("Private conversation", createdById);
+
+        insertNewUser(group.getId(), otherUser);
+
+        return group;
+    }
+
+
 }

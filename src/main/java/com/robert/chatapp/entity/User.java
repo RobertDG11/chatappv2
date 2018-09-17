@@ -45,8 +45,7 @@ public class User {
 
     @OneToMany(
             mappedBy = "user",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.REFRESH, CascadeType.PERSIST},
+            cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<UserGroup> groups;
@@ -66,6 +65,12 @@ public class User {
             orphanRemoval = true)
     private VerificationToken verificationToken;
 
+    @OneToMany(mappedBy = "createdBy",
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST},
+            orphanRemoval = true)
+    private List<Group> createdGroups = new ArrayList<>();
+
 
     public void addGroup(Group group, UserType type) {
 
@@ -78,23 +83,38 @@ public class User {
         userGroup.setUserType(type);
 
         groups.add(userGroup);
+
+        if (group.getUsers() == null) {
+
+            group.setUsers(new ArrayList<>());
+        }
+
         group.getUsers().add(userGroup);
     }
 
     public void removeGroup(Group group) {
-        for (Iterator<UserGroup> iterator = groups.iterator();
-             iterator.hasNext(); ) {
-            UserGroup userGroup = iterator.next();
+        groups.forEach(userGroup -> {
 
             if (userGroup.getUser().equals(this) &&
                     userGroup.getGroup().equals(group)) {
 
-                iterator.remove();
                 userGroup.getGroup().getUsers().remove(userGroup);
                 userGroup.setUser(null);
                 userGroup.setGroup(null);
             }
-        }
+        });
+    }
+
+    public void blockUser(Group group) {
+
+        groups.forEach(userGroup -> {
+
+            if (userGroup.getUser().equals(this) &&
+                    userGroup.getGroup().equals(group)) {
+
+                userGroup.setBlocked(true);
+            }
+        });
     }
 
     public Long getId() {
@@ -194,7 +214,13 @@ public class User {
         this.messages = messages;
     }
 
+    public List<Group> getCreatedGroups() {
+        return createdGroups;
+    }
 
+    public void setCreatedGroups(List<Group> createdGroups) {
+        this.createdGroups = createdGroups;
+    }
 
     public VerificationToken getVerificationToken() {
         return verificationToken;

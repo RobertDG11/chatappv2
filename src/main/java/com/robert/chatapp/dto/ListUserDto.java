@@ -20,8 +20,6 @@ public class ListUserDto {
 
     private String phoneNumber;
 
-    private String password;
-
     private String notificationType;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -75,14 +73,6 @@ public class ListUserDto {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getNotificationType() {

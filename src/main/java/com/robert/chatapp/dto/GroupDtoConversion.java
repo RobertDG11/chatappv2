@@ -18,6 +18,7 @@ public class GroupDtoConversion {
     public GroupDto convertToDto(Group group) {
 
         return modelMapper.map(group, GroupDto.class);
+
     }
 
     public Group convertToEntity(GroupDto groupDto) {

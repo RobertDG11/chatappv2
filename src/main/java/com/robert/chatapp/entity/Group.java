@@ -25,10 +25,9 @@ public class Group {
     insertable = false)
     private Boolean privateG = false;
 
-    @OneToOne(fetch = FetchType.LAZY,
+    @ManyToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.REFRESH, CascadeType.PERSIST},
-            orphanRemoval = true)
+                    CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "created_by")
     private User createdBy;
 
