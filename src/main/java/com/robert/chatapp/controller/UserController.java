@@ -7,6 +7,7 @@ import com.robert.chatapp.entity.User;
 
 import com.robert.chatapp.entity.VerificationToken;
 import com.robert.chatapp.registration.OnRegistrationCompleteEvent;
+import com.robert.chatapp.service.IUserService;
 import com.robert.chatapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
     @Autowired
     private UserDtoConversions userDtoConversions;

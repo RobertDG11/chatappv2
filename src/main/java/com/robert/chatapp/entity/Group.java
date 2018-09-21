@@ -40,8 +40,7 @@ public class Group {
 
     @OneToMany(
             mappedBy = "group",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.REFRESH, CascadeType.PERSIST},
+            cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<Message> messages = new ArrayList<>();
@@ -92,6 +91,14 @@ public class Group {
 
     public void setUsers(List<UserGroup> users) {
         this.users = users;
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<Message> messages) {
+        this.messages = messages;
     }
 
     @Override

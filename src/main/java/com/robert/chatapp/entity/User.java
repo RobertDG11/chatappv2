@@ -52,11 +52,10 @@ public class User {
 
     @OneToMany(
             mappedBy = "user",
-            cascade = {CascadeType.DETACH, CascadeType.MERGE,
-                    CascadeType.REFRESH, CascadeType.PERSIST},
+            cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<Message> messages;
+    private List<Message> messages = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY,
             cascade = {CascadeType.DETACH, CascadeType.MERGE,

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -16,18 +17,22 @@ public class Message {
     private Long id;
 
     @Column(name = "message_body")
+    @Size(max = 144, message = "Message too long! " +
+            "Please use maximum 144 characters")
     private String messageBody;
 
     @Column(name = "create_date")
     private Date createDate;
 
     @ManyToOne(fetch = FetchType.LAZY,
-        cascade = CascadeType.ALL)
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL)
+            cascade = {CascadeType.DETACH, CascadeType.MERGE,
+                    CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "group_id")
     private Group group;
 

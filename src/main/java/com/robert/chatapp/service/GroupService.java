@@ -2,7 +2,6 @@ package com.robert.chatapp.service;
 
 import com.robert.chatapp.dto.GroupDto;
 import com.robert.chatapp.dto.GroupDtoConversion;
-import com.robert.chatapp.dto.ListUserDto;
 import com.robert.chatapp.entity.Group;
 import com.robert.chatapp.entity.User;
 import com.robert.chatapp.entity.UserType;
@@ -17,7 +16,6 @@ import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class GroupService implements IGroupService {
