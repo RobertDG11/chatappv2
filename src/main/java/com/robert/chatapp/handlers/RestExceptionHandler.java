@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
-public class ApplicationExceptionHandler {
+@RestControllerAdvice("com.robert.chatapp.restcontroller")
+public class RestExceptionHandler {
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<String> handleBadUsername(UsernameAlreadyExistsException e) {

@@ -1,4 +1,4 @@
-package com.robert.chatapp.controller;
+package com.robert.chatapp.restcontroller;
 
 import com.robert.chatapp.dto.GroupDto;
 import com.robert.chatapp.dto.GroupDtoConversion;
@@ -15,8 +15,8 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/group")
-public class GroupController {
+@RequestMapping("/api/group")
+public class GroupRestController {
 
     @Autowired
     IGroupService groupService;

@@ -1,4 +1,4 @@
-package com.robert.chatapp.controller;
+package com.robert.chatapp.restcontroller;
 
 import com.robert.chatapp.dto.ListUserDto;
 import com.robert.chatapp.dto.RegisterUserDto;
@@ -8,7 +8,6 @@ import com.robert.chatapp.entity.User;
 import com.robert.chatapp.entity.VerificationToken;
 import com.robert.chatapp.registration.OnRegistrationCompleteEvent;
 import com.robert.chatapp.service.IUserService;
-import com.robert.chatapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -23,8 +22,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/api/user")
+public class UserRestController {
 
     @Autowired
     private IUserService userService;

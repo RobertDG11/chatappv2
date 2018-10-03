@@ -13,6 +13,7 @@ import com.robert.chatapp.repository.UserRepository;
 import com.robert.chatapp.utils.SecureTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -37,6 +38,8 @@ public class UserService implements IUserService {
     @Autowired
     UserDtoConversions userDtoConversions;
 
+    BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Override
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public User createUser(RegisterUserDto newUser) {
@@ -56,6 +59,7 @@ public class UserService implements IUserService {
         User user = userDtoConversions.convertToEntityRegister(newUser);
 
         user.setDateCreated(new Date());
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
     }
