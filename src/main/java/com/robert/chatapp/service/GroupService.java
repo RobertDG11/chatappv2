@@ -10,6 +10,7 @@ import com.robert.chatapp.exceptions.UserNotActivatedException;
 import com.robert.chatapp.repository.GroupRepository;
 import com.robert.chatapp.repository.UserTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -70,15 +71,22 @@ public class GroupService implements IGroupService {
     }
 
     @Override
-    public void insertNewUser(Long gid, Long uid) {
+    public boolean insertNewUser(Long gid, Long uid) {
 
         User user = userService.getUser(uid);
         Group group = getGroupById(gid);
+
+        if (user.isInGroup(group)) {
+            return false;
+        }
+
         UserType userType = userTypeRepository.getOne(3);
 
         user.addGroup(group, userType);
 
         groupRepository.save(group);
+
+        return true;
 
     }
 

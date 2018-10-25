@@ -2,6 +2,8 @@ package com.robert.chatapp.registration;
 
 import com.robert.chatapp.entity.User;
 import com.robert.chatapp.exceptions.InvalidTokenException;
+import com.robert.chatapp.exceptions.UserAlreadyActivatedException;
+import com.robert.chatapp.service.IRegisterService;
 import com.robert.chatapp.service.UserService;
 import com.robert.chatapp.utils.SecureTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class RegisterListener implements ApplicationListener<OnRegistrationCompleteEvent> {
 
     @Autowired
-    private UserService service;
+    private IRegisterService service;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -36,11 +38,6 @@ public class RegisterListener implements ApplicationListener<OnRegistrationCompl
         final User user = event.getUser();
         final String token;
 
-        if (user.isActive()) {
-
-            throw new InvalidTokenException("User already confirmed");
-        }
-
         if (user.getVerificationToken() == null) {
             token = SecureTokenGenerator.nextToken();
             service.createVerificationTokenForUser(user, token);
@@ -58,7 +55,7 @@ public class RegisterListener implements ApplicationListener<OnRegistrationCompl
 
         String recipientAddress = user.getEmailAddress();
         String subject = "Registration Confirmation";
-        String confirmationUrl = event.getAppUrl() + "/user/registrationConfirm?token=" + token;
+        String confirmationUrl = event.getAppUrl() + "/api/register/confirm?token=" + token;
         String message = "Account successfully created";
         SimpleMailMessage email = new SimpleMailMessage();
 

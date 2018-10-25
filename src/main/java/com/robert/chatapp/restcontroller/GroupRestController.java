@@ -8,6 +8,7 @@ import com.robert.chatapp.service.IGroupService;
 import com.robert.chatapp.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -38,10 +39,14 @@ public class GroupRestController {
         return ResponseEntity.created(location).build();
     }
 
+    @PreAuthorize("hasPermission(#uid, 'insert')")
     @GetMapping("/addUser")
     ResponseEntity<Object> inertUser(@RequestParam Long gid, @RequestParam Long uid) {
 
-        groupService.insertNewUser(gid, uid);
+        boolean response = groupService.insertNewUser(gid, uid);
+        if (!response) {
+            return ResponseEntity.ok("User already in group");
+        }
 
         User user = userService.getUser(uid);
         Group group = groupService.getGroupById(gid);

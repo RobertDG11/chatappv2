@@ -4,6 +4,7 @@ import com.robert.chatapp.annotations.PasswordMatches;
 import com.robert.chatapp.annotations.ValidEmail;
 import com.robert.chatapp.annotations.ValidPassword;
 import com.robert.chatapp.annotations.ValidPhoneNumber;
+import org.springframework.context.annotation.Bean;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

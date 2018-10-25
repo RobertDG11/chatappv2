@@ -1,19 +1,19 @@
 package com.robert.chatapp.controller;
 
 import com.robert.chatapp.dto.RegisterUserDto;
-import com.robert.chatapp.dto.UserDtoConversions;
 import com.robert.chatapp.entity.User;
 import com.robert.chatapp.exceptions.EmailAlreadyExistsException;
-import com.robert.chatapp.exceptions.UsernameAlreadyExistsException;
 import com.robert.chatapp.registration.OnRegistrationCompleteEvent;
+import com.robert.chatapp.repository.UserRepository;
 import com.robert.chatapp.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,54 +27,61 @@ public class RegisterController {
     private IUserService userService;
 
     @Autowired
-    private UserDtoConversions userDtoConversions;
-
-    @Autowired
     private ApplicationEventPublisher eventPublisher;
 
     @GetMapping("/register")
-    public ModelAndView showRegPage(ModelAndView modelAndView,
-                                    RegisterUserDto registerUserDto) {
+    public ModelAndView registration(){
 
-        modelAndView.addObject("user", registerUserDto);
+        ModelAndView modelAndView = new ModelAndView();
+        RegisterUserDto user = new RegisterUserDto();
+        modelAndView.addObject("user", user);
         modelAndView.setViewName("register");
 
         return modelAndView;
     }
 
     @PostMapping("/register")
-    public ModelAndView signUpUser(ModelAndView modelAndView,
-                                   @Valid RegisterUserDto registerUserDto,
-                                   BindingResult bindingResult,
-                                   HttpServletRequest request) {
+    public ModelAndView createNewUser(@Valid @ModelAttribute("user") RegisterUserDto user,
+                                      BindingResult bindingResult,
+                                      HttpServletRequest request) {
 
-        User newUser = null;
-        try {
-            newUser = userService.createUser(registerUserDto);
+        ModelAndView modelAndView = new ModelAndView();
 
-        } catch (UsernameAlreadyExistsException | EmailAlreadyExistsException e) {
+        User userExists = userService.findUserByEmail(user.getEmailAddress());
 
-            bindingResult.reject("email");
+        if (userExists != null) {
+            bindingResult
+                    .rejectValue("emailAddress", "error.user",
+                            "There is already a user registered with the email provided");
+        }
+
+        userExists = userService.findUserByUsername(user.getUsername());
+
+        if (userExists != null) {
+            bindingResult
+                    .rejectValue("username", "error.user",
+                            "There is already a user registered with the username provided");
         }
 
         if (bindingResult.hasErrors()) {
-
             modelAndView.setViewName("register");
+
         } else {
 
-            eventPublisher.publishEvent(new OnRegistrationCompleteEvent(newUser,
-                    request.getLocale(), getAppUrl(request)));
+            //User savedUser = userService.createUser(user);
 
-            modelAndView.addObject("confirmationMessage",
-                    "A confirmation e-mail has been sent to " + newUser.getEmailAddress());
+            //eventPublisher.publishEvent(new OnRegistrationCompleteEvent(savedUser, getAppUrl(request)));
+
+
+            modelAndView.addObject("successMessage", "User has been registered successfully");
+            modelAndView.addObject("user", new RegisterUserDto());
             modelAndView.setViewName("register");
-        }
 
+        }
         return modelAndView;
     }
 
     private String getAppUrl(HttpServletRequest request) {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
-
 }

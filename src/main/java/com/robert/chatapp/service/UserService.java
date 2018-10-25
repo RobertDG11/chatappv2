@@ -14,6 +14,7 @@ import com.robert.chatapp.utils.SecureTokenGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -25,10 +26,6 @@ import java.util.Optional;
 @Service
 public class UserService implements IUserService {
 
-    private static final String TOKEN_INVALID = "invalidToken";
-    private static final String TOKEN_EXPIRED = "expired";
-    private static final String TOKEN_VALID = "valid";
-
     @Autowired
     UserRepository userRepository;
 
@@ -37,32 +34,6 @@ public class UserService implements IUserService {
 
     @Autowired
     UserDtoConversions userDtoConversions;
-
-    BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Override
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
-    public User createUser(RegisterUserDto newUser) {
-
-        if (userRepository.getUserByUsername(newUser.getUsername()).isPresent()) {
-
-            throw new UsernameAlreadyExistsException("There is an user with the same username. " +
-                    "Please choose another one!");
-        }
-
-
-        if (userRepository.getUserByEmailAddress(newUser.getEmailAddress()).isPresent()) {
-
-            throw new EmailAlreadyExistsException("Email already exists");
-        }
-
-        User user = userDtoConversions.convertToEntityRegister(newUser);
-
-        user.setDateCreated(new Date());
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
-        return userRepository.save(user);
-    }
 
     @Override
     public User getUser(Long id) {
@@ -169,54 +140,15 @@ public class UserService implements IUserService {
     }
 
     @Override
-    @Transactional
-    public void createVerificationTokenForUser(final User user, final String token) {
+    public User findUserByEmail(String emailAddress) {
 
-        final VerificationToken myToken = new VerificationToken(token, user);
-        tokenRepository.save(myToken);
+        return userRepository.getUserByEmailAddress(emailAddress).orElse(null);
     }
 
     @Override
-    @Transactional
-    public String validateVerificationToken(String token) {
+    public User findUserByUsername(String username) {
 
-        Optional<VerificationToken> verificationToken = tokenRepository.findByConfirmationToken(token);
-
-        if (!verificationToken.isPresent()) {
-            return TOKEN_INVALID;
-        }
-
-        User user = verificationToken.get().getUserId();
-
-        final Calendar cal = Calendar.getInstance();
-
-        if ((verificationToken.get().getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
-
-            tokenRepository.delete(verificationToken.get());
-            user.setVerificationToken(null);
-            return TOKEN_EXPIRED;
-        }
-
-        tokenRepository.delete(verificationToken.get());
-
-        user.setActive(true);
-        user.setVerificationToken(null);
-
-        userRepository.save(user);
-
-
-        return TOKEN_VALID;
-    }
-
-    @Override
-    public VerificationToken generateNewVerificationToken(String existingVerificationToken) {
-
-        Optional<VerificationToken> token = tokenRepository.findByConfirmationToken(existingVerificationToken);
-
-        token.ifPresent(t -> {t.updateToken(SecureTokenGenerator.nextToken());
-            tokenRepository.save(t);});
-
-        return token.orElseThrow(() -> new InvalidTokenException("Invalid token"));
+        return userRepository.getUserByUsername(username).orElse(null);
     }
 
     private void updateValues(User oldUser, User newUser) {

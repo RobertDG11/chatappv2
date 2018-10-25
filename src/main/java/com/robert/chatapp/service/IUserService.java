@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IUserService {
 
-    User createUser(RegisterUserDto newUser);
+    // methods for api
     User getUser(Long id);
     User getUser(Date dateCreated);
     User getUserByEmail(String emailAddress);
@@ -24,9 +24,8 @@ public interface IUserService {
     List<User> getAllUsers(Boolean active);
     List<User> getAllUsersInGroup(Long gid);
     User getUserByMessageInGroup(Long mid, Long gid);
-    void createVerificationTokenForUser(final User user, final String token);
-    String validateVerificationToken(String token);
-    VerificationToken generateNewVerificationToken(final String existingVerificationToken);
 
-
+    //methods for views
+    User findUserByEmail(String emailAddress);
+    User findUserByUsername(String username);
 }

@@ -2,6 +2,7 @@ package com.robert.chatapp.entity;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user")
@@ -83,12 +84,12 @@ public class User {
 
         groups.add(userGroup);
 
-        if (group.getUsers() == null) {
-
-            group.setUsers(new ArrayList<>());
-        }
-
-        group.getUsers().add(userGroup);
+//        if (group.getUsers() == null) {
+//
+//            group.setUsers(new ArrayList<>());
+//        }
+//
+//        group.getUsers().add(userGroup);
     }
 
     public void removeGroup(Group group) {
@@ -114,6 +115,18 @@ public class User {
                 userGroup.setBlocked(true);
             }
         });
+    }
+
+    public boolean isInGroup(Group group) {
+
+        if (groups == null) {
+            return false;
+        }
+
+        return groups.stream()
+                .map(UserGroup::getGroup)
+                .collect(Collectors.toCollection(ArrayList::new))
+                .contains(group);
     }
 
     public Long getId() {
