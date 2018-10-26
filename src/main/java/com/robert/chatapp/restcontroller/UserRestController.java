@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -76,6 +77,13 @@ public class UserRestController {
         User newUser = userService.editUser(user);
 
         return new ResponseEntity<>(userDtoConversions.convertToDto(newUser), HttpStatus.OK);
+    }
+
+    @PreAuthorize("#username == authentication.name")
+    @GetMapping("/{username}")
+    public ListUserDto getUser(@PathVariable("username") String username) {
+
+        return userDtoConversions.convertToDto(userService.findUserByUsername(username));
     }
 
 }

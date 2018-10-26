@@ -39,9 +39,9 @@ public class GroupRestController {
         return ResponseEntity.created(location).build();
     }
 
-    @PreAuthorize("hasPermission(#uid, 'insert')")
-    @GetMapping("/addUser")
-    ResponseEntity<Object> inertUser(@RequestParam Long gid, @RequestParam Long uid) {
+    @PreAuthorize("hasPermission(#gid, 'insert')")
+    @GetMapping("/add/{gid}/{uid}")
+    ResponseEntity<Object> inertUser(@PathVariable Long gid, @PathVariable Long uid) {
 
         boolean response = groupService.insertNewUser(gid, uid);
         if (!response) {
